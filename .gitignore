@@ -27,3 +27,4 @@ testbench.yaml
 clover.xml
 .DS_Store
 .php-cs-fixer.cache
+vendor/pestphp/pest/.temp/test-results
