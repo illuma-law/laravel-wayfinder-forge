@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace IllumaLaw\WayfinderForge;
 
 use IllumaLaw\WayfinderForge\Commands\WayfinderForgeCommand;

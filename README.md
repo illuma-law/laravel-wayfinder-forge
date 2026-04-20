@@ -1,11 +1,17 @@
 # Laravel Wayfinder Forge
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/illuma-law/laravel-wayfinder-forge.svg?style=flat-square)](https://packagist.org/packages/illuma-law/laravel-wayfinder-forge)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/illuma-law/laravel-wayfinder-forge/ci.yml?branch=main&label=tests&style=flat-square)](https://github.com/illuma-law/laravel-wayfinder-forge/actions?query=workflow%3ACI+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/illuma-law/laravel-wayfinder-forge/ci.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/illuma-law/laravel-wayfinder-forge/actions?query=workflow%3ACI+branch%3Amain)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/illuma-law/laravel-wayfinder-forge/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/illuma-law/laravel-wayfinder-forge/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/illuma-law/laravel-wayfinder-forge.svg?style=flat-square)](https://packagist.org/packages/illuma-law/laravel-wayfinder-forge)
 
 Auto-generate strongly typed frontend SDKs from your Laravel Wayfinder routes.
+
+## TL;DR
+
+```bash
+# Generate TypeScript SDK from your routes
+php artisan wayfinder:forge
+```
 
 Laravel Wayfinder Forge analyzes your Laravel routes (following Wayfinder conventions), parses their `FormRequest` or Spatie `Data` objects, and generates a TypeScript SDK. This ensures your frontend stays in sync with your backend validation rules and route parameters.
 
@@ -172,4 +178,4 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](LICENSE) for more information.

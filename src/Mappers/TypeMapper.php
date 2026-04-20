@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace IllumaLaw\WayfinderForge\Mappers;
 
 use ReflectionClass;
@@ -29,8 +31,8 @@ class TypeMapper
             $stringRules = array_filter($fieldRules, fn ($rule) => is_string($rule));
 
             $type = $this->getTsTypeFromRules($stringRules);
-            $isOptional = ! in_array('required', $stringRules);
-            $isNullable = in_array('nullable', $stringRules);
+            $isOptional = ! in_array('required', $stringRules, true);
+            $isNullable = in_array('nullable', $stringRules, true);
 
             $fieldName = $isOptional ? "{$field}?" : $field;
             $finalType = $isNullable ? "{$type} | null" : $type;
@@ -50,6 +52,7 @@ class TypeMapper
             return '';
         }
 
+        /** @var class-string<Data> $class */
         $reflection = new ReflectionClass($class);
         $className = $reflection->getShortName();
         $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
@@ -57,8 +60,9 @@ class TypeMapper
         $fields = [];
         foreach ($properties as $property) {
             $name = $property->getName();
-            $type = $this->getTsTypeFromReflectionType($property->getType());
-            $isOptional = $property->getType()?->allowsNull() ?? true;
+            $propertyType = $property->getType();
+            $type = $this->getTsTypeFromReflectionType($propertyType);
+            $isOptional = $propertyType?->allowsNull() ?? true;
 
             $fieldName = $isOptional ? "{$name}?" : $name;
             $fields[] = "    {$fieldName}: {$type};";

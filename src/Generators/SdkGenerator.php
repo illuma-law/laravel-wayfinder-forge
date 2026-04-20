@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace IllumaLaw\WayfinderForge\Generators;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -24,7 +26,7 @@ class SdkGenerator
     {
         $routes = $this->getFilteredRoutes();
         /** @var string $client */
-        $client = Config::get('wayfinder-forge.client', 'axios');
+        $client = (string) Config::get('wayfinder-forge.client', 'axios');
 
         $output = $this->generateHeader($client);
         $interfaces = [];
@@ -53,12 +55,12 @@ class SdkGenerator
     {
         /** @var Router $router */
         $router = app('router');
-        $routes = $router->getRoutes()->getRoutes();
+        $routes = array_values($router->getRoutes()->getRoutes());
 
         /** @var array<int, string> $includePrefixes */
-        $includePrefixes = Config::get('wayfinder-forge.routes.include_prefixes', ['api/*']);
+        $includePrefixes = (array) Config::get('wayfinder-forge.routes.include_prefixes', ['api/*']);
         /** @var array<int, string> $excludeMiddlewares */
-        $excludeMiddlewares = Config::get('wayfinder-forge.routes.exclude_middlewares', []);
+        $excludeMiddlewares = (array) Config::get('wayfinder-forge.routes.exclude_middlewares', []);
 
         /** @var array<int, Route> $filtered */
         $filtered = array_filter($routes, function (Route $route) use ($includePrefixes, $excludeMiddlewares) {
@@ -75,9 +77,9 @@ class SdkGenerator
             }
 
             /** @var array<int, string> $middlewares */
-            $middlewares = $route->gatherMiddleware();
+            $middlewares = (array) $route->gatherMiddleware();
             foreach ($excludeMiddlewares as $middleware) {
-                if (in_array($middleware, $middlewares)) {
+                if (in_array($middleware, $middlewares, true)) {
                     return false;
                 }
             }
