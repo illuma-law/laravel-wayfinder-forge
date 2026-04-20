@@ -6,8 +6,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
 afterEach(function () {
-    if (isset($this->outputPath) && File::exists($this->outputPath)) {
-        File::delete($this->outputPath);
+    /** @var mixed $outputPath */
+    $outputPath = $this->outputPath ?? null;
+
+    if (is_string($outputPath) && File::exists($outputPath)) {
+        File::delete($outputPath);
     }
 });
 
@@ -20,11 +23,13 @@ it('can generate sdk for basic routes', function () {
     Route::post('api/users', function () {})->name('users.store');
     Route::get('api/users/{user}', function ($user) {})->name('users.show');
 
-    $this->artisan('wayfinder:forge')
-        ->assertSuccessful();
+    $command = $this->artisan('wayfinder:forge');
+    if ($command instanceof \Illuminate\Testing\PendingCommand) {
+        $command->assertSuccessful();
+    }
 
-    expect(File::exists($this->outputPath))->toBeTrue();
-    $content = File::get($this->outputPath);
+    expect(File::exists((string) $this->outputPath))->toBeTrue();
+    $content = File::get((string) $this->outputPath);
 
     expect($content)->toContain('export const usersIndex = () => {')
         ->toContain('export const usersStore = (data: any) => {')
@@ -42,10 +47,12 @@ it('filters routes based on prefix', function () {
     Route::get('api/users', function () {})->name('api.users');
     Route::get('web/users', function () {})->name('web.users');
 
-    $this->artisan('wayfinder:forge')
-        ->assertSuccessful();
+    $command = $this->artisan('wayfinder:forge');
+    if ($command instanceof \Illuminate\Testing\PendingCommand) {
+        $command->assertSuccessful();
+    }
 
-    $content = File::get($this->outputPath);
+    $content = File::get((string) $this->outputPath);
     expect($content)->toContain('apiUsers')
         ->not->toContain('webUsers');
 });
@@ -57,10 +64,12 @@ it('can generate sdk for routes with form requests', function () {
 
     Route::post('api/posts', [MockController::class, 'store'])->name('posts.store');
 
-    $this->artisan('wayfinder:forge')
-        ->assertSuccessful();
+    $command = $this->artisan('wayfinder:forge');
+    if ($command instanceof \Illuminate\Testing\PendingCommand) {
+        $command->assertSuccessful();
+    }
 
-    $content = File::get($this->outputPath);
+    $content = File::get((string) $this->outputPath);
     expect($content)->toContain('export interface ApiPostsRequest {')
         ->toContain('title: string;')
         ->toContain('export const postsStore = (data: ApiPostsRequest) => {')

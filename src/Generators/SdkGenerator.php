@@ -25,8 +25,8 @@ class SdkGenerator
     public function generate(): string
     {
         $routes = $this->getFilteredRoutes();
-        /** @var string $client */
-        $client = (string) Config::get('wayfinder-forge.client', 'axios');
+        $clientConfig = Config::get('wayfinder-forge.client', 'axios');
+        $client = is_string($clientConfig) ? $clientConfig : 'axios';
 
         $output = $this->generateHeader($client);
         $interfaces = [];

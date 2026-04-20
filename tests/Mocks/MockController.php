@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller;
 
 class MockController extends Controller
 {
-    public function store(MockRequest $request)
+    public function store(MockRequest $request): string
     {
         return 'ok';
     }

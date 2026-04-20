@@ -27,6 +27,29 @@ return [
     ],
 
     /**
+     * Generic URL default parameter helpers used to avoid stale route defaults in long-lived workers.
+     */
+    'route_defaults' => [
+        /**
+         * Register a UrlGenerator macro for clearing selected default parameters.
+         */
+        'register_forget_macro' => true,
+
+        /**
+         * Name of the generated UrlGenerator macro.
+         */
+        'forget_macro_name' => 'forgetTeamRouteDefaultParameters',
+
+        /**
+         * Default parameter keys removed by the generated macro.
+         */
+        'forget_parameters' => [
+            'team',
+            'current_team',
+        ],
+    ],
+
+    /**
      * The HTTP client to format the SDK for.
      * Supported: 'axios', 'fetch', 'inertia'
      */
