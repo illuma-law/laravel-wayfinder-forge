@@ -10,7 +10,6 @@ use Pest\TestCaseMethodFilters\AssigneeTestCaseFilter;
 use Pest\TestCaseMethodFilters\IssueTestCaseFilter;
 use Pest\TestCaseMethodFilters\NotesTestCaseFilter;
 use Pest\TestCaseMethodFilters\PrTestCaseFilter;
-use Pest\TestCaseMethodFilters\FlakyTestCaseFilter;
 use Pest\TestCaseMethodFilters\TodoTestCaseFilter;
 use Pest\TestSuite;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -24,7 +23,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
     $dirty = false;
     $todo = false;
-    $flaky = false;
     $notes = false;
 
     foreach ($arguments as $key => $value) {
@@ -56,11 +54,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
         if (in_array($value, ['--todo', '--todos'], true)) {
             $todo = true;
-            unset($arguments[$key]);
-        }
-
-        if ($value === '--flaky') {
-            $flaky = true;
             unset($arguments[$key]);
         }
 
@@ -155,10 +148,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
     if ($todo) {
         $testSuite->tests->addTestCaseMethodFilter(new TodoTestCaseFilter);
-    }
-
-    if ($flaky) {
-        $testSuite->tests->addTestCaseMethodFilter(new FlakyTestCaseFilter);
     }
 
     if ($notes) {

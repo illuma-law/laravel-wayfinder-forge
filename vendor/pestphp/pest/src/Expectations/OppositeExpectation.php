@@ -15,7 +15,6 @@ use Pest\Arch\PendingArchExpectation;
 use Pest\Arch\SingleArchExpectation;
 use Pest\Arch\Support\FileLineFinder;
 use Pest\Exceptions\InvalidExpectation;
-use Pest\Exceptions\MissingDependency;
 use Pest\Expectation;
 use Pest\Support\Arr;
 use Pest\Support\Exporter;
@@ -25,7 +24,6 @@ use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\ExpectationFailedException;
 use ReflectionMethod;
 use ReflectionProperty;
-use Spoofchecker;
 use stdClass;
 
 /**
@@ -277,28 +275,6 @@ final readonly class OppositeExpectation
             ) === [],
             'to not have methods: '.implode(', ', $methods),
             FileLineFinder::where(fn (string $line): bool => str_contains($line, 'class')),
-        );
-    }
-
-    /**
-     * Asserts that the given expectation target does not have suspicious characters.
-     */
-    public function toHaveSuspiciousCharacters(): ArchExpectation
-    {
-        if (! class_exists(Spoofchecker::class)) {
-            throw new MissingDependency(__FUNCTION__, 'ext-intl >= 2.0');
-        }
-
-        $checker = new Spoofchecker;
-
-        /** @var Expectation<array<int, string>|string> $original */
-        $original = $this->original;
-
-        return Targeted::make(
-            $original,
-            fn (ObjectDescription $object): bool => ! $checker->isSuspicious((string) file_get_contents($object->path)),
-            'to not include suspicious characters',
-            FileLineFinder::where(fn (string $line): bool => $checker->isSuspicious($line)),
         );
     }
 

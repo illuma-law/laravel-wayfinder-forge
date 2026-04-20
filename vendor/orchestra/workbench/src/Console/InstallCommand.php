@@ -35,7 +35,7 @@ class InstallCommand extends Command implements PromptsForMissingInput
 
     /** {@inheritDoc} */
     #[\Override]
-    protected function initialize(InputInterface $input, OutputInterface $output): void
+    protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->hasTestbenchDusk = InstalledVersions::isInstalled('orchestra/testbench-dusk');
 

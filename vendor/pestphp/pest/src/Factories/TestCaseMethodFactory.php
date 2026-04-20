@@ -9,7 +9,6 @@ use Pest\Evaluators\Attributes;
 use Pest\Exceptions\ShouldNotHappen;
 use Pest\Factories\Concerns\HigherOrderable;
 use Pest\Repositories\DatasetsRepository;
-use Pest\Support\Description;
 use Pest\Support\Str;
 use Pest\TestSuite;
 use PHPUnit\Framework\Assert;
@@ -36,7 +35,7 @@ final class TestCaseMethodFactory
     /**
      * The test's describing, if any.
      *
-     * @var array<int, Description>
+     * @var array<int, string>
      */
     public array $describing = [];
 
@@ -49,11 +48,6 @@ final class TestCaseMethodFactory
      * The test's number of repetitions.
      */
     public int $repetitions = 1;
-
-    /**
-     * The test's number of flaky retry tries.
-     */
-    public ?int $flakyTries = null;
 
     /**
      * Determines if the test is a "todo".

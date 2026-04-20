@@ -60,11 +60,6 @@ final class TestCaseFactory
     ];
 
     /**
-     * The namespace for the test case, overrides the path-based namespace when set.
-     */
-    public ?string $namespace = null;
-
-    /**
      * Creates a new Factory instance.
      */
     public function __construct(
@@ -116,8 +111,8 @@ final class TestCaseFactory
         $relativePath = (string) preg_replace('|%[a-fA-F0-9][a-fA-F0-9]|', '', $relativePath);
         // Remove escaped quote sequences (maintain namespace)
         $relativePath = str_replace(array_map(fn (string $quote): string => sprintf('\\%s', $quote), ['\'', '"']), '', $relativePath);
-        // Limit to Unicode letters and numbers.
-        $relativePath = (string) preg_replace('/[^\p{L}\p{N}\\\\]/u', '', $relativePath);
+        // Limit to A-Z, a-z, 0-9, '_', '-'.
+        $relativePath = (string) preg_replace('/[^A-Za-z0-9\\\\]/', '', $relativePath);
 
         $classFQN = 'P\\'.$relativePath;
 
@@ -132,7 +127,7 @@ final class TestCaseFactory
 
         $partsFQN = explode('\\', $classFQN);
         $className = array_pop($partsFQN);
-        $namespace = $this->namespace ?? implode('\\', $partsFQN);
+        $namespace = implode('\\', $partsFQN);
         $baseClass = sprintf('\%s', $this->class);
 
         if (trim($className) === '') {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pest\PendingCalls;
 
 use Closure;
-use Pest\Support\Description;
+use Pest\Support\Backtrace;
 use Pest\TestSuite;
 
 /**
@@ -16,7 +16,7 @@ final class DescribeCall
     /**
      * The current describe call.
      *
-     * @var array<int, Description>
+     * @var array<int, string>
      */
     private static array $describing = [];
 
@@ -31,7 +31,7 @@ final class DescribeCall
     public function __construct(
         public readonly TestSuite $testSuite,
         public readonly string $filename,
-        public readonly Description $description,
+        public readonly string $description,
         public readonly Closure $tests
     ) {
         //
@@ -40,7 +40,7 @@ final class DescribeCall
     /**
      * What is the current describing.
      *
-     * @return array<int, Description>
+     * @return array<int, string>
      */
     public static function describing(): array
     {
@@ -52,11 +52,7 @@ final class DescribeCall
      */
     public function __destruct()
     {
-        // Ensure BeforeEachCall destructs before creating tests
-        // by moving to local scope and clearing the reference
-        $beforeEach = $this->currentBeforeEachCall;
-        $this->currentBeforeEachCall = null;
-        unset($beforeEach);  // Trigger destructor immediately
+        unset($this->currentBeforeEachCall);
 
         self::$describing[] = $this->description;
 
@@ -74,13 +70,12 @@ final class DescribeCall
      */
     public function __call(string $name, array $arguments): self
     {
-        if (! $this->currentBeforeEachCall instanceof BeforeEachCall) {
-            $this->currentBeforeEachCall = new BeforeEachCall(TestSuite::getInstance(), $this->filename);
+        $filename = Backtrace::file();
 
-            $this->currentBeforeEachCall->describing = array_merge(
-                DescribeCall::describing(),
-                [$this->description]
-            );
+        if (! $this->currentBeforeEachCall instanceof BeforeEachCall) {
+            $this->currentBeforeEachCall = new BeforeEachCall(TestSuite::getInstance(), $filename);
+
+            $this->currentBeforeEachCall->describing[] = $this->description;
         }
 
         $this->currentBeforeEachCall->{$name}(...$arguments);

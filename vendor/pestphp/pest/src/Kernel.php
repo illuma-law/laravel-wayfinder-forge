@@ -34,7 +34,7 @@ final readonly class Kernel
      *
      * @var array<int, class-string>
      */
-    private const array BOOTSTRAPPERS = [
+    private const BOOTSTRAPPERS = [
         Bootstrappers\BootOverrides::class,
         Bootstrappers\BootSubscribers::class,
         Bootstrappers\BootFiles::class,
@@ -71,7 +71,7 @@ final readonly class Kernel
             $output,
         );
 
-        register_shutdown_function($kernel->shutdown(...));
+        register_shutdown_function(fn () => $kernel->shutdown());
 
         foreach (self::BOOTSTRAPPERS as $bootstrapper) {
             $bootstrapper = Container::getInstance()->get($bootstrapper);

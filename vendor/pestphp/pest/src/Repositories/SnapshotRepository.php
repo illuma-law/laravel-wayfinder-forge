@@ -19,7 +19,6 @@ final class SnapshotRepository
      * Creates a snapshot repository instance.
      */
     public function __construct(
-        private readonly string $rootPath,
         private readonly string $testsPath,
         private readonly string $snapshotsPath,
     ) {}
@@ -59,10 +58,8 @@ final class SnapshotRepository
     {
         $snapshotFilename = $this->getSnapshotFilename();
 
-        $directory = dirname($snapshotFilename);
-
-        if (! is_dir($directory)) {
-            @mkdir($directory, 0755, true);
+        if (! file_exists(dirname($snapshotFilename))) {
+            mkdir(dirname($snapshotFilename), 0755, true);
         }
 
         file_put_contents($snapshotFilename, $snapshot);
@@ -106,19 +103,7 @@ final class SnapshotRepository
      */
     private function getSnapshotFilename(): string
     {
-        $testFile = TestSuite::getInstance()->getFilename();
-
-        if (str_starts_with($testFile, $this->testsPath)) {
-            // if the test file is in the tests directory
-            $startPath = $this->testsPath;
-        } else {
-            // if the test file is in the app, src, etc. directory
-            $startPath = $this->rootPath;
-        }
-
-        // relative path: we use substr() and not str_replace() to remove the start path
-        // for instance, if the $startPath is /app/ and the $testFile is /app/app/tests/Unit/ExampleTest.php, we should only remove the first /app/ from the path
-        $relativePath = substr($testFile, strlen($startPath));
+        $relativePath = str_replace($this->testsPath, '', TestSuite::getInstance()->getFilename());
 
         // remove extension from filename
         $relativePath = substr($relativePath, 0, (int) strrpos($relativePath, '.'));

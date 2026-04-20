@@ -22,7 +22,6 @@ use Illuminate\Database\RecordNotFoundException;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Foundation\Exceptions\Renderer\Renderer;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Exceptions\OriginMismatchException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Exceptions\BackedEnumCaseNotFoundException;
@@ -155,7 +154,6 @@ class Handler implements ExceptionHandlerContract
         HttpResponseException::class,
         ModelNotFoundException::class,
         MultipleRecordsFoundException::class,
-        OriginMismatchException::class,
         RecordNotFoundException::class,
         RecordsNotFoundException::class,
         RequestExceptionInterface::class,
@@ -672,7 +670,6 @@ class Handler implements ExceptionHandlerContract
                 $e->status(), $e->response()?->message() ?: (Response::$statusTexts[$e->status()] ?? 'Whoops, looks like something went wrong.'), $e
             ),
             $e instanceof AuthorizationException && ! $e->hasStatus() => new AccessDeniedHttpException($e->getMessage(), $e),
-            $e instanceof OriginMismatchException => new HttpException(403, $e->getMessage(), $e),
             $e instanceof TokenMismatchException => new HttpException(419, $e->getMessage(), $e),
             $e instanceof RequestExceptionInterface => new BadRequestHttpException('Bad request.', $e),
             $e instanceof RecordNotFoundException => new NotFoundHttpException('Not found.', $e),
@@ -750,17 +747,9 @@ class Handler implements ExceptionHandlerContract
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        if ($this->shouldReturnJson($request, $exception)) {
-            return response()->json(['message' => $exception->getMessage()], 401);
-        }
-
-        $redirectTo = $exception->redirectTo($request);
-
-        if (! $redirectTo) {
-            return response()->noContent(401);
-        }
-
-        return redirect()->guest($redirectTo);
+        return $this->shouldReturnJson($request, $exception)
+            ? response()->json(['message' => $exception->getMessage()], 401)
+            : redirect()->guest($exception->redirectTo($request) ?? route('login'));
     }
 
     /**
@@ -927,8 +916,6 @@ class Handler implements ExceptionHandlerContract
      *
      * @param  \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface  $e
      * @return \Symfony\Component\HttpFoundation\Response
-     *
-     * @throws \Throwable
      */
     protected function renderHttpException(HttpExceptionInterface $e)
     {

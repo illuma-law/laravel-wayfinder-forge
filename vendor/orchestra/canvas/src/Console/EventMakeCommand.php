@@ -17,9 +17,11 @@ class EventMakeCommand extends \Illuminate\Foundation\Console\EventMakeCommand
 
     /**
      * Configures the current command.
+     *
+     * @return void
      */
     #[\Override]
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
 

@@ -49,7 +49,7 @@ final class GeneratedConfig
         0 => 'extension.neon',
       ),
     ),
-    'version' => 'v4.6.3',
+    'version' => 'v3.8.6',
     'phpstanVersionConstraint' => NULL,
   ),
   'phpstan/phpstan-deprecation-rules' => 

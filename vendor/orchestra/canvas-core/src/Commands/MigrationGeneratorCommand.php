@@ -15,7 +15,7 @@ abstract class MigrationGeneratorCommand extends Command
 
     /** {@inheritDoc} */
     #[\Override]
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
 

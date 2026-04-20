@@ -2,13 +2,11 @@
 
 declare(strict_types=1);
 
-use Pest\Browser\Api\ArrayablePendingAwaitablePage;
-use Pest\Browser\Api\PendingAwaitablePage;
+use Pest\Concerns\Expectable;
 use Pest\Configuration;
 use Pest\Exceptions\AfterAllWithinDescribe;
 use Pest\Exceptions\BeforeAllWithinDescribe;
 use Pest\Expectation;
-use Pest\Installers\PluginBrowser;
 use Pest\Mutate\Contracts\MutationTestRunner;
 use Pest\Mutate\Repositories\ConfigurationRepository;
 use Pest\PendingCalls\AfterEachCall;
@@ -20,7 +18,6 @@ use Pest\Repositories\DatasetsRepository;
 use Pest\Support\Backtrace;
 use Pest\Support\Container;
 use Pest\Support\DatasetInfo;
-use Pest\Support\Description;
 use Pest\Support\HigherOrderTapProxy;
 use Pest\TestSuite;
 use PHPUnit\Framework\TestCase;
@@ -47,7 +44,7 @@ if (! function_exists('beforeAll')) {
     function beforeAll(Closure $closure): void
     {
         if (DescribeCall::describing() !== []) {
-            $filename = Backtrace::testFile();
+            $filename = Backtrace::file();
 
             throw new BeforeAllWithinDescribe($filename);
         }
@@ -60,11 +57,13 @@ if (! function_exists('beforeEach')) {
     /**
      * Runs the given closure before each test in the current file.
      *
-     * @param-closure-this TestCall  $closure
+     * @param-closure-this TestCase  $closure
+     *
+     * @return HigherOrderTapProxy<Expectable|TestCall|TestCase>|Expectable|TestCall|TestCase|mixed
      */
     function beforeEach(?Closure $closure = null): BeforeEachCall
     {
-        $filename = Backtrace::testFile();
+        $filename = Backtrace::file();
 
         return new BeforeEachCall(TestSuite::getInstance(), $filename, $closure);
     }
@@ -89,12 +88,14 @@ if (! function_exists('describe')) {
      * Adds the given closure as a group of tests. The first argument
      * is the group description; the second argument is a closure
      * that contains the group tests.
+     *
+     * @return HigherOrderTapProxy<Expectable|TestCall|TestCase>|Expectable|TestCall|TestCase|mixed
      */
     function describe(string $description, Closure $tests): DescribeCall
     {
         $filename = Backtrace::testFile();
 
-        return new DescribeCall(TestSuite::getInstance(), $filename, new Description($description), $tests);
+        return new DescribeCall(TestSuite::getInstance(), $filename, $description, $tests);
     }
 }
 
@@ -107,7 +108,7 @@ if (! function_exists('uses')) {
      */
     function uses(string ...$classAndTraits): UsesCall
     {
-        $filename = Backtrace::testFile();
+        $filename = Backtrace::file();
 
         return new UsesCall($filename, array_values($classAndTraits));
     }
@@ -119,7 +120,7 @@ if (! function_exists('pest')) {
      */
     function pest(): Configuration
     {
-        return new Configuration(Backtrace::testFile());
+        return new Configuration(Backtrace::file());
     }
 }
 
@@ -129,9 +130,9 @@ if (! function_exists('test')) {
      * is the test description; the second argument is
      * a closure that contains the test expectations.
      *
-     * @param-closure-this TestCall  $closure
+     * @param-closure-this TestCase  $closure
      *
-     * @return ($description is string ? TestCall : HigherOrderTapProxy|TestCall)
+     * @return Expectable|TestCall|TestCase|mixed
      */
     function test(?string $description = null, ?Closure $closure = null): HigherOrderTapProxy|TestCall
     {
@@ -151,23 +152,34 @@ if (! function_exists('it')) {
      * is the test description; the second argument is
      * a closure that contains the test expectations.
      *
-     * @param-closure-this TestCall  $closure
+     * @param-closure-this TestCase  $closure
+     *
+     * @return Expectable|TestCall|TestCase|mixed
      */
     function it(string $description, ?Closure $closure = null): TestCall
     {
         $description = sprintf('it %s', $description);
 
-        return test($description, $closure);
+        /** @var TestCall $test */
+        $test = test($description, $closure);
+
+        return $test;
     }
 }
 
 if (! function_exists('todo')) {
     /**
      * Creates a new test that is marked as "todo".
+     *
+     * @return Expectable|TestCall|TestCase|mixed
      */
     function todo(string $description): TestCall
     {
-        return test($description)->todo();
+        $test = test($description);
+
+        assert($test instanceof TestCall);
+
+        return $test->todo();
     }
 }
 
@@ -175,11 +187,13 @@ if (! function_exists('afterEach')) {
     /**
      * Runs the given closure after each test in the current file.
      *
-     * @param-closure-this TestCall  $closure
+     * @param-closure-this TestCase  $closure
+     *
+     * @return Expectable|HigherOrderTapProxy<Expectable|TestCall|TestCase>|TestCall|mixed
      */
     function afterEach(?Closure $closure = null): AfterEachCall
     {
-        $filename = Backtrace::testFile();
+        $filename = Backtrace::file();
 
         return new AfterEachCall(TestSuite::getInstance(), $filename, $closure);
     }
@@ -192,7 +206,7 @@ if (! function_exists('afterAll')) {
     function afterAll(Closure $closure): void
     {
         if (DescribeCall::describing() !== []) {
-            $filename = Backtrace::testFile();
+            $filename = Backtrace::file();
 
             throw new AfterAllWithinDescribe($filename);
         }
@@ -209,7 +223,7 @@ if (! function_exists('covers')) {
      */
     function covers(array|string ...$classesOrFunctions): void
     {
-        $filename = Backtrace::testFile();
+        $filename = Backtrace::file();
 
         $beforeEachCall = (new BeforeEachCall(TestSuite::getInstance(), $filename));
 
@@ -238,7 +252,7 @@ if (! function_exists('mutates')) {
      */
     function mutates(array|string ...$targets): void
     {
-        $filename = Backtrace::testFile();
+        $filename = Backtrace::file();
 
         $beforeEachCall = (new BeforeEachCall(TestSuite::getInstance(), $filename));
         $beforeEachCall->group('__pest_mutate_only');
@@ -262,53 +276,5 @@ if (! function_exists('mutates')) {
         if (! is_array($paths)) {
             $configurationRepository->globalConfiguration('default')->class(...$targets); // @phpstan-ignore-line
         }
-    }
-}
-
-if (! function_exists('fixture')) {
-    /**
-     * Returns the absolute path to a fixture file.
-     */
-    function fixture(string $file): string
-    {
-        $file = implode(DIRECTORY_SEPARATOR, [
-            TestSuite::getInstance()->rootPath,
-            TestSuite::getInstance()->testPath,
-            'Fixtures',
-            str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $file),
-        ]);
-
-        $fileRealPath = realpath($file);
-
-        if ($fileRealPath === false) {
-            throw new InvalidArgumentException(
-                'The fixture file ['.$file.'] does not exist.',
-            );
-        }
-
-        return $fileRealPath;
-    }
-}
-
-if (! function_exists('visit')) {
-    /**
-     * Browse to the given URL.
-     *
-     * @template TUrl of array<int, string>|string
-     *
-     * @param  TUrl  $url
-     * @param  array<string, mixed>  $options
-     * @return (TUrl is array<int, string> ? ArrayablePendingAwaitablePage : PendingAwaitablePage)
-     */
-    function visit(array|string $url, array $options = []): ArrayablePendingAwaitablePage|PendingAwaitablePage
-    {
-        if (! class_exists(Pest\Browser\Configuration::class)) {
-            PluginBrowser::install();
-
-            exit(0);
-        }
-
-        // @phpstan-ignore-next-line
-        return test()->visit($url, $options);
     }
 }

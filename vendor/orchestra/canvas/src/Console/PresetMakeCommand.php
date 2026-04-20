@@ -34,9 +34,11 @@ class PresetMakeCommand extends GeneratorCommand
 
     /**
      * Interact with the user before validating the input.
+     *
+     * @return void
      */
     #[\Override]
-    protected function interact(InputInterface $input, OutputInterface $output): void
+    protected function interact(InputInterface $input, OutputInterface $output)
     {
         if (\is_null($input->getArgument('name'))) {
             $input->setArgument('name', select(

@@ -24,9 +24,9 @@ use function sprintf;
 /** @internal */
 final class ParaTestCommand extends Command
 {
-    public const string COMMAND_NAME = 'paratest';
+    public const COMMAND_NAME = 'paratest';
 
-    private const array KNOWN_RUNNERS = [
+    private const KNOWN_RUNNERS = [
         'WrapperRunner' => WrapperRunner::class,
     ];
 

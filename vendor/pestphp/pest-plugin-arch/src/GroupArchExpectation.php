@@ -13,7 +13,7 @@ use Pest\Expectation;
  *
  * @mixin Expectation<string>
  */
-final class GroupArchExpectation implements ArchExpectation
+final class GroupArchExpectation implements Contracts\ArchExpectation
 {
     /**
      * Creates a new Arch Expectation instance.

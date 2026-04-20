@@ -6,16 +6,12 @@ namespace Pest\Concerns;
 
 use Closure;
 use Pest\Exceptions\DatasetArgumentsMismatch;
-use Pest\Panic;
 use Pest\Preset;
 use Pest\Support\ChainableClosure;
 use Pest\Support\ExceptionTrace;
 use Pest\Support\Reflection;
-use Pest\Support\Shell;
 use Pest\TestSuite;
 use PHPUnit\Framework\Attributes\PostCondition;
-use PHPUnit\Framework\IncompleteTest;
-use PHPUnit\Framework\SkippedTest;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 use ReflectionFunction;
@@ -104,6 +100,27 @@ trait Testable
      * The list of snapshot changes, if any.
      */
     private array $__snapshotChanges = [];
+
+    /**
+     * Creates a new Test Case instance.
+     */
+    public function __construct(string $name)
+    {
+        parent::__construct($name);
+
+        $test = TestSuite::getInstance()->tests->get(self::$__filename);
+
+        if ($test->hasMethod($name)) {
+            $method = $test->getMethod($name);
+            $this->__description = self::$__latestDescription = $method->description;
+            self::$__latestAssignees = $method->assignees;
+            self::$__latestNotes = $method->notes;
+            self::$__latestIssues = $method->issues;
+            self::$__latestPrs = $method->prs;
+            $this->__describing = $method->describing;
+            $this->__test = $method->getClosure();
+        }
+    }
 
     /**
      * Resets the test case static properties.
@@ -197,11 +214,7 @@ trait Testable
             $beforeAll = ChainableClosure::boundStatically(self::$__beforeAll, $beforeAll);
         }
 
-        try {
-            call_user_func(Closure::bind($beforeAll, null, self::class));
-        } catch (Throwable $e) {
-            Panic::with($e);
-        }
+        call_user_func(Closure::bind($beforeAll, null, self::class));
     }
 
     /**
@@ -228,6 +241,8 @@ trait Testable
         TestSuite::getInstance()->test = $this;
 
         $method = TestSuite::getInstance()->tests->get(self::$__filename)->getMethod($this->name());
+
+        $method->setUp($this);
 
         $description = $method->description;
         if ($this->dataName()) {
@@ -271,33 +286,6 @@ trait Testable
     }
 
     /**
-     * Initialize test case properties from TestSuite.
-     */
-    public function __initializeTestCase(): void
-    {
-        // Return if the test case has already been initialized
-        if (isset($this->__test)) {
-            return;
-        }
-
-        $name = $this->name();
-        $test = TestSuite::getInstance()->tests->get(self::$__filename);
-
-        if ($test->hasMethod($name)) {
-            $method = $test->getMethod($name);
-            $this->__description = self::$__latestDescription = $method->description;
-            self::$__latestAssignees = $method->assignees;
-            self::$__latestNotes = $method->notes;
-            self::$__latestIssues = $method->issues;
-            self::$__latestPrs = $method->prs;
-            $this->__describing = $method->describing;
-            $this->__test = $method->getClosure();
-
-            $method->setUp($this);
-        }
-    }
-
-    /**
      * Gets executed after the Test Case.
      */
     protected function tearDown(...$arguments): void
@@ -330,80 +318,7 @@ trait Testable
         $arguments = $this->__resolveTestArguments($args);
         $this->__ensureDatasetArgumentNameAndNumberMatches($arguments);
 
-        $method = TestSuite::getInstance()->tests->get(self::$__filename)->getMethod($this->name());
-
-        if ($method->flakyTries === null) {
-            return $this->__callClosure($closure, $arguments);
-        }
-
-        $lastException = null;
-        $initialProperties = get_object_vars($this);
-
-        for ($attempt = 1; $attempt <= $method->flakyTries; $attempt++) {
-            try {
-                return $this->__callClosure($closure, $arguments);
-            } catch (Throwable $e) {
-                if ($e instanceof SkippedTest
-                    || $e instanceof IncompleteTest
-                    || $this->__isExpectedException($e)) {
-                    throw $e;
-                }
-
-                $lastException = $e;
-
-                if ($attempt < $method->flakyTries) {
-                    if ($this->__snapshotChanges !== []) {
-                        throw $e;
-                    }
-
-                    $this->tearDown();
-
-                    Closure::bind(fn (): array => $this->mockObjects = [], $this, TestCase::class)();
-
-                    foreach (array_keys(array_diff_key(get_object_vars($this), $initialProperties)) as $property) {
-                        unset($this->{$property});
-                    }
-
-                    $hasOutputExpectation = Closure::bind(fn (): bool => is_string($this->outputExpectedString) || is_string($this->outputExpectedRegex), $this, TestCase::class)();
-
-                    if ($hasOutputExpectation) {
-                        ob_clean();
-                    }
-
-                    $this->setUp();
-                }
-            }
-        }
-
-        throw $lastException;
-    }
-
-    /**
-     * Determines if the given exception matches PHPUnit's expected exception.
-     */
-    private function __isExpectedException(Throwable $e): bool
-    {
-        $read = fn (string $property): mixed => Closure::bind(fn () => $this->{$property}, $this, TestCase::class)();
-
-        $expectedClass = $read('expectedException');
-
-        if ($expectedClass !== null) {
-            return $e instanceof $expectedClass;
-        }
-
-        $expectedMessage = $read('expectedExceptionMessage');
-
-        if ($expectedMessage !== null) {
-            return str_contains($e->getMessage(), (string) $expectedMessage);
-        }
-
-        $expectedCode = $read('expectedExceptionCode');
-
-        if ($expectedCode !== null) {
-            return $e->getCode() === $expectedCode;
-        }
-
-        return false;
+        return $this->__callClosure($closure, $arguments);
     }
 
     /**
@@ -425,8 +340,7 @@ trait Testable
         }
 
         $underlyingTest = Reflection::getFunctionVariable($this->__test, 'closure');
-        $testParameterTypesByName = Reflection::getFunctionArguments($underlyingTest);
-        $testParameterTypes = array_values($testParameterTypesByName);
+        $testParameterTypes = array_values(Reflection::getFunctionArguments($underlyingTest));
 
         if (count($arguments) !== 1) {
             foreach ($arguments as $argumentIndex => $argumentValue) {
@@ -434,11 +348,7 @@ trait Testable
                     continue;
                 }
 
-                $parameterType = is_string($argumentIndex)
-                    ? $testParameterTypesByName[$argumentIndex]
-                    : $testParameterTypes[$argumentIndex];
-
-                if (in_array($parameterType, [Closure::class, 'callable', 'mixed'])) {
+                if (in_array($testParameterTypes[$argumentIndex], [Closure::class, 'callable', 'mixed'])) {
                     continue;
                 }
 
@@ -464,7 +374,7 @@ trait Testable
             return [$boundDatasetResult];
         }
 
-        return $boundDatasetResult;
+        return array_values($boundDatasetResult);
     }
 
     /**
@@ -524,7 +434,15 @@ trait Testable
             return;
         }
 
-        $this->markTestIncomplete(implode('. ', $this->__snapshotChanges));
+        if (count($this->__snapshotChanges) === 1) {
+            $this->markTestIncomplete($this->__snapshotChanges[0]);
+
+            return;
+        }
+
+        $messages = implode(PHP_EOL, array_map(static fn (string $message): string => '- $message', $this->__snapshotChanges));
+
+        $this->markTestIncomplete($messages);
     }
 
     /**
@@ -548,7 +466,7 @@ trait Testable
      */
     public static function getLatestPrintableTestCaseMethodName(): string
     {
-        return self::$__latestDescription ?? '';
+        return self::$__latestDescription;
     }
 
     /**
@@ -562,13 +480,5 @@ trait Testable
             'prs' => self::$__latestPrs,
             'notes' => self::$__latestNotes,
         ];
-    }
-
-    /**
-     * Opens a shell for the test case.
-     */
-    public function shell(): void
-    {
-        Shell::open();
     }
 }

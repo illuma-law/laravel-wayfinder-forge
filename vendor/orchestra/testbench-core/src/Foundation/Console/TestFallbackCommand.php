@@ -45,7 +45,7 @@ class TestFallbackCommand extends Command
 
     /** {@inheritDoc} */
     #[\Override]
-    public function configure(): void
+    public function configure()
     {
         parent::configure();
 
@@ -77,7 +77,7 @@ class TestFallbackCommand extends Command
      */
     protected function installCollisionDependencies(): void
     {
-        $version = '8.9';
+        $version = '8.0';
 
         $command = \sprintf('%s require "nunomaduro/collision:^%s" --dev', $this->findComposer(), $version);
 

@@ -19,9 +19,11 @@ class ChannelMakeCommand extends \Illuminate\Foundation\Console\ChannelMakeComma
 
     /**
      * Configures the current command.
+     *
+     * @return void
      */
     #[\Override]
-    protected function configure(): void
+    protected function configure()
     {
         parent::configure();
 

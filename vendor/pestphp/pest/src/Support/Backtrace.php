@@ -11,9 +11,12 @@ use Pest\Exceptions\ShouldNotHappen;
  */
 final class Backtrace
 {
-    private const string FILE = 'file';
+    /**
+     * @var string
+     */
+    private const FILE = 'file';
 
-    private const int BACKTRACE_OPTIONS = DEBUG_BACKTRACE_IGNORE_ARGS;
+    private const BACKTRACE_OPTIONS = DEBUG_BACKTRACE_IGNORE_ARGS;
 
     /**
      * Returns the current test file.
@@ -23,9 +26,7 @@ final class Backtrace
         $current = null;
 
         foreach (debug_backtrace(self::BACKTRACE_OPTIONS) as $trace) {
-            if (array_key_exists(self::FILE, $trace) === false) {
-                break;
-            }
+            assert(array_key_exists(self::FILE, $trace));
 
             $traceFile = str_replace(DIRECTORY_SEPARATOR, '/', $trace[self::FILE]);
 

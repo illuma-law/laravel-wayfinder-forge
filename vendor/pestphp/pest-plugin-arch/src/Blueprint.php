@@ -15,7 +15,6 @@ use Pest\Arch\ValueObjects\Dependency;
 use Pest\Arch\ValueObjects\Targets;
 use Pest\Arch\ValueObjects\Violation;
 use Pest\TestSuite;
-use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Name;
 use PHPUnit\Architecture\ArchitectureAsserts;
@@ -253,7 +252,7 @@ final class Blueprint
         /** @var ObjectDescription $dependOnObject */
         $dependOnObject = array_pop($dependOnObjects);
 
-        /** @var class-string<Node> $class */
+        /** @var class-string<\PhpParser\Node> $class */
         $class = PhpCoreExpressions::getClass($target) ?? Name::class;
 
         // @phpstan-ignore-next-line
@@ -268,7 +267,7 @@ final class Blueprint
 
         /** @var array<int, Name|Expr> $nodes */
         $names = array_values(array_filter(
-            $nodes, static function (Expr|Name $node) use ($target): bool {
+            $nodes, static function ($node) use ($target): bool {
                 $name = $node instanceof Name ? $node->toString() : PhpCoreExpressions::getName($node);
 
                 return $name === $target;

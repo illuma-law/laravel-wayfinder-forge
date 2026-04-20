@@ -19,7 +19,7 @@ use function sprintf;
  */
 final class DatasetsRepository
 {
-    private const string SEPARATOR = '>>';
+    private const SEPARATOR = '>>';
 
     /**
      * Holds the datasets.
@@ -67,11 +67,11 @@ final class DatasetsRepository
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return Closure|array<int|string, mixed>
      *
      * @throws ShouldNotHappen
      */
-    public static function get(string $filename, string $description): array // @phpstan-ignore-line
+    public static function get(string $filename, string $description): Closure|array // @phpstan-ignore-line
     {
         $dataset = self::$withs[$filename.self::SEPARATOR.$description];
 
@@ -191,7 +191,6 @@ final class DatasetsRepository
             return str_starts_with($currentTestFile, $datasetScope);
         }, ARRAY_FILTER_USE_KEY);
 
-        /** @var string|null $closestScopeDatasetKey */
         $closestScopeDatasetKey = array_reduce(
             array_keys($matchingDatasets),
             fn (string|int|null $keyA, string|int|null $keyB): string|int|null => $keyA !== null && strlen((string) $keyA) > strlen((string) $keyB) ? $keyA : $keyB
@@ -201,6 +200,7 @@ final class DatasetsRepository
             throw new DatasetDoesNotExist($name);
         }
 
+        // @phpstan-ignore-next-line
         return $matchingDatasets[$closestScopeDatasetKey];
     }
 

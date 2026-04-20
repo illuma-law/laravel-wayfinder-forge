@@ -31,7 +31,7 @@ final readonly class Converter
     /**
      * The prefix for the test suite name.
      */
-    private const string PREFIX = 'P\\';
+    private const PREFIX = 'P\\';
 
     /**
      *  The state generator.
@@ -131,7 +131,7 @@ final readonly class Converter
 
         // clean the paths of each frame.
         $frames = array_map(
-            $this->toRelativePath(...),
+            fn (string $frame): string => $this->toRelativePath($frame),
             $frames
         );
 

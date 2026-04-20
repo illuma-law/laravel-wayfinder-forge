@@ -29,7 +29,7 @@ use const DIRECTORY_SEPARATOR;
 /** @internal */
 final class WrapperWorker
 {
-    public const string COMMAND_EXIT = "EXIT\n";
+    public const COMMAND_EXIT = "EXIT\n";
 
     public readonly SplFileInfo $statusFile;
     public readonly SplFileInfo $progressFile;
@@ -39,8 +39,8 @@ final class WrapperWorker
     public readonly SplFileInfo $junitFile;
     public readonly SplFileInfo $coverageFile;
     public readonly SplFileInfo $teamcityFile;
-    public readonly SplFileInfo $testdoxFile;
 
+    public readonly SplFileInfo $testdoxFile;
     private ?string $currentlyExecuting = null;
     private Process $process;
     private int $inExecution = 0;
@@ -85,7 +85,7 @@ final class WrapperWorker
             $this->teamcityFile = new SplFileInfo($commonTmpFilePath . 'teamcity');
         }
 
-        if ($options->needsTestdox) {
+        if ($options->configuration->outputIsTestDox()) {
             $this->testdoxFile = new SplFileInfo($commonTmpFilePath . 'testdox');
         }
 
@@ -111,6 +111,12 @@ final class WrapperWorker
         if (isset($this->testdoxFile)) {
             $parameters[] = '--testdox-file';
             $parameters[] = $this->testdoxFile->getPathname();
+            if ($options->configuration->colors()) {
+                $parameters[] = '--testdox-color';
+            }
+
+            $parameters[] = '--testdox-columns';
+            $parameters[] = (string) $options->configuration->columns();
         }
 
         $phpunitArguments = [$options->phpunit];
@@ -229,10 +235,5 @@ final class WrapperWorker
     public function isRunning(): bool
     {
         return $this->process->isRunning();
-    }
-
-    public function hasExecutedTests(): bool
-    {
-        return $this->inExecution > 0;
     }
 }

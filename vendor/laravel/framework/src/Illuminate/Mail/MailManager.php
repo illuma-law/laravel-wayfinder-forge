@@ -29,8 +29,6 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 use Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream;
 
-use function Illuminate\Support\enum_value;
-
 /**
  * @mixin \Illuminate\Mail\Mailer
  */
@@ -70,12 +68,12 @@ class MailManager implements FactoryContract
     /**
      * Get a mailer instance by name.
      *
-     * @param  \UnitEnum|string|null  $name
+     * @param  string|null  $name
      * @return \Illuminate\Contracts\Mail\Mailer
      */
     public function mailer($name = null)
     {
-        $name = enum_value($name) ?: $this->getDefaultDriver();
+        $name = $name ?: $this->getDefaultDriver();
 
         return $this->mailers[$name] = $this->get($name);
     }
@@ -83,7 +81,7 @@ class MailManager implements FactoryContract
     /**
      * Get a mailer driver instance.
      *
-     * @param  \UnitEnum|string|null  $driver
+     * @param  string|null  $driver
      * @return \Illuminate\Mail\Mailer
      */
     public function driver($driver = null)
@@ -554,12 +552,12 @@ class MailManager implements FactoryContract
     /**
      * Disconnect the given mailer and remove from local cache.
      *
-     * @param  \UnitEnum|string|null  $name
+     * @param  string|null  $name
      * @return void
      */
     public function purge($name = null)
     {
-        $name = enum_value($name) ?: $this->getDefaultDriver();
+        $name = $name ?: $this->getDefaultDriver();
 
         unset($this->mailers[$name]);
     }

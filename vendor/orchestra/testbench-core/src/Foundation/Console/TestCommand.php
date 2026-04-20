@@ -44,7 +44,7 @@ class TestCommand extends Command
 
     /** {@inheritDoc} */
     #[\Override]
-    public function configure(): void
+    public function configure()
     {
         parent::configure();
 

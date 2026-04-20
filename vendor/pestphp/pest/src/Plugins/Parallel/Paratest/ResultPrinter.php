@@ -59,10 +59,10 @@ final class ResultPrinter
         private readonly OutputInterface $output,
         private readonly Options $options
     ) {
-        $this->printer = new readonly class($this->output) implements Printer
+        $this->printer = new class($this->output) implements Printer
         {
             public function __construct(
-                private OutputInterface $output,
+                private readonly OutputInterface $output,
             ) {}
 
             public function print(string $buffer): void
@@ -81,9 +81,7 @@ final class ResultPrinter
             public function flush(): void {}
         };
 
-        $this->compactPrinter = CompactPrinter::default(
-            decorated: ! in_array('--colors=never', $_SERVER['argv'] ?? [], true),
-        );
+        $this->compactPrinter = CompactPrinter::default();
 
         if (! $this->options->configuration->hasLogfileTeamcity()) {
             return;
@@ -94,13 +92,14 @@ final class ResultPrinter
         $this->teamcityLogFileHandle = $teamcityLogFileHandle;
     }
 
+    /** @param  list<SplFileInfo>  $teamcityFiles */
     public function printFeedback(
         SplFileInfo $progressFile,
         SplFileInfo $outputFile,
-        ?SplFileInfo $teamcityFile,
+        array $teamcityFiles
     ): void {
-        if ($this->options->needsTeamcity && $teamcityFile instanceof SplFileInfo) {
-            $teamcityProgress = $this->tailMultiple([$teamcityFile]);
+        if ($this->options->needsTeamcity) {
+            $teamcityProgress = $this->tailMultiple($teamcityFiles);
 
             if ($this->teamcityLogFileHandle !== null) {
                 fwrite($this->teamcityLogFileHandle, $teamcityProgress);
@@ -172,18 +171,8 @@ final class ResultPrinter
 
         $state = (new StateGenerator)->fromPhpUnitTestResult($this->passedTests, $testResult);
 
-        if ($testResult->numberOfTestsRun() === 0 && $state->testSuiteTestsCount() === 0) {
-            $this->output->writeln([
-                '',
-                '  <fg=white;options=bold;bg=blue> INFO </> No tests found.',
-                '',
-            ]);
-        }
-
-        if (! isset($_SERVER['PEST_PARALLEL_NO_OUTPUT'])) {
-            $this->compactPrinter->errors($state);
-            $this->compactPrinter->recap($state, $testResult, $duration, $this->options);
-        }
+        $this->compactPrinter->errors($state);
+        $this->compactPrinter->recap($state, $testResult, $duration, $this->options);
     }
 
     private function printFeedbackItem(string $item): void

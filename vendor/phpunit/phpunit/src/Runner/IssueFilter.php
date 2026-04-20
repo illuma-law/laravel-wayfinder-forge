@@ -44,7 +44,8 @@ final readonly class IssueFilter
                 return false;
             }
 
-            if ($this->source->ignoreSelfDeprecations() && $event->trigger()->isSelf()) {
+            if ($this->source->ignoreSelfDeprecations() &&
+                ($event->trigger()->isTest() || $event->trigger()->isSelf())) {
                 return false;
             }
 
@@ -57,6 +58,10 @@ final readonly class IssueFilter
             }
 
             if (!$this->source->ignoreSuppressionOfDeprecations() && $event->wasSuppressed()) {
+                return false;
+            }
+
+            if ($this->source->restrictDeprecations() && !SourceFilter::instance()->includes($event->file())) {
                 return false;
             }
         }
