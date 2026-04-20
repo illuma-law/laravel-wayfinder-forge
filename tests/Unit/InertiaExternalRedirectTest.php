@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
 use IllumaLaw\WayfinderForge\Support\Http\InertiaExternalRedirect;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 

@@ -4,6 +4,7 @@ use IllumaLaw\WayfinderForge\Tests\Mocks\MockController;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Testing\PendingCommand;
 
 afterEach(function () {
     /** @var mixed $outputPath */
@@ -24,7 +25,7 @@ it('can generate sdk for basic routes', function () {
     Route::get('api/users/{user}', function ($user) {})->name('users.show');
 
     $command = $this->artisan('wayfinder:forge');
-    if ($command instanceof \Illuminate\Testing\PendingCommand) {
+    if ($command instanceof PendingCommand) {
         $command->assertSuccessful();
     }
 
@@ -48,7 +49,7 @@ it('filters routes based on prefix', function () {
     Route::get('web/users', function () {})->name('web.users');
 
     $command = $this->artisan('wayfinder:forge');
-    if ($command instanceof \Illuminate\Testing\PendingCommand) {
+    if ($command instanceof PendingCommand) {
         $command->assertSuccessful();
     }
 
@@ -65,7 +66,7 @@ it('can generate sdk for routes with form requests', function () {
     Route::post('api/posts', [MockController::class, 'store'])->name('posts.store');
 
     $command = $this->artisan('wayfinder:forge');
-    if ($command instanceof \Illuminate\Testing\PendingCommand) {
+    if ($command instanceof PendingCommand) {
         $command->assertSuccessful();
     }
 

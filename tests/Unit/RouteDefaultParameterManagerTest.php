@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\URL;
 use IllumaLaw\WayfinderForge\Routing\RouteDefaultParameterManager;
+use Illuminate\Support\Facades\URL;
 
 it('forgets selected default URL parameters', function () {
     URL::defaults([
@@ -40,4 +40,3 @@ it('registers the configured URL macro for clearing defaults', function () {
         ->not->toHaveKey('team')
         ->not->toHaveKey('current_team');
 });
-
