@@ -12,7 +12,7 @@ use Spatie\LaravelData\Data;
 class TypeMapper
 {
     /**
-     * @param array<string, mixed> $rules
+     * @param  array<string, mixed>  $rules
      */
     public function mapRules(array $rules, string $name): string
     {
@@ -44,7 +44,7 @@ class TypeMapper
     }
 
     /**
-     * @param class-string<Data>|Data $class
+     * @param  class-string<Data>|Data  $class
      */
     public function mapSpatieData(string|Data $class): string
     {
@@ -72,7 +72,7 @@ class TypeMapper
     }
 
     /**
-     * @param array<int, string> $rules
+     * @param  array<int, string>  $rules
      */
     protected function getTsTypeFromRules(array $rules): string
     {
@@ -101,10 +101,10 @@ class TypeMapper
 
         return match ($typeName) {
             'int', 'float' => 'number',
-            'bool'   => 'boolean',
-            'array'  => 'any[]',
+            'bool' => 'boolean',
+            'array' => 'any[]',
             'string' => 'string',
-            default  => 'any',
+            default => 'any',
         };
     }
 }

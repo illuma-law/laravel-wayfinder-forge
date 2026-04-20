@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Storage;
-use IllumaLaw\WayfinderForge\Commands\WayfinderForgeCommand;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Config;
 
 it('can run the wayfinder forge command', function () {
     $tempFile = tempnam(sys_get_temp_dir(), 'sdk');

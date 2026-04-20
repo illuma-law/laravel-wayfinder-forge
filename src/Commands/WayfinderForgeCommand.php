@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace IllumaLaw\WayfinderForge\Commands;
 
-use Illuminate\Console\Command;
 use IllumaLaw\WayfinderForge\Generators\SdkGenerator;
+use Illuminate\Console\Command;
 
 class WayfinderForgeCommand extends Command
 {

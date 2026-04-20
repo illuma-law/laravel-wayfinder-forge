@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace IllumaLaw\WayfinderForge\Generators;
 
+use IllumaLaw\WayfinderForge\Mappers\TypeMapper;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
-use IllumaLaw\WayfinderForge\Mappers\TypeMapper;
 use ReflectionMethod;
 use Spatie\LaravelData\Data;
 
@@ -103,12 +103,12 @@ class SdkGenerator
             $params = array_values($route->parameterNames());
 
             return [
-                'name'             => $this->getRouteName($route),
-                'method'           => strtolower($method),
-                'uri'              => $route->uri(),
-                'params'           => $params,
+                'name' => $this->getRouteName($route),
+                'method' => strtolower($method),
+                'uri' => $route->uri(),
+                'params' => $params,
                 'requestInterface' => null,
-                'requestType'      => 'any',
+                'requestType' => 'any',
             ];
         }
 
@@ -148,12 +148,12 @@ class SdkGenerator
         $params = array_values($route->parameterNames());
 
         return [
-            'name'             => $this->getRouteName($route),
-            'method'           => strtolower($method),
-            'uri'              => $route->uri(),
-            'params'           => $params,
+            'name' => $this->getRouteName($route),
+            'method' => strtolower($method),
+            'uri' => $route->uri(),
+            'params' => $params,
             'requestInterface' => $requestInterface,
-            'requestType'      => $requestType,
+            'requestType' => $requestType,
         ];
     }
 
@@ -181,7 +181,7 @@ class SdkGenerator
     }
 
     /**
-     * @param array{name: string, method: string, uri: string, params: array<int, string>, requestInterface: string|null, requestType: string} $analysis
+     * @param  array{name: string, method: string, uri: string, params: array<int, string>, requestInterface: string|null, requestType: string}  $analysis
      */
     protected function generateFunction(array $analysis, string $client): string
     {
