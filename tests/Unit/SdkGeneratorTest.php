@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Route;
 use IllumaLaw\WayfinderForge\Generators\SdkGenerator;
 use IllumaLaw\WayfinderForge\Tests\Mocks\MockController;
-use IllumaLaw\WayfinderForge\Tests\Mocks\MockData;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Route;
 
 it('generates a typescript sdk for axios', function () {
     Route::post('api/test', [MockController::class, 'store'])->name('test.store');
@@ -17,7 +16,7 @@ it('generates a typescript sdk for axios', function () {
         ->toContain('export interface ApiTestRequest {')
         ->toContain('title: string;')
         ->toContain('export const testStore = (data: ApiTestRequest) => {')
-        ->toContain("return axios.post(`/api/test`, data);");
+        ->toContain('return axios.post(`/api/test`, data);');
 });
 
 it('generates a typescript sdk for fetch', function () {
@@ -28,10 +27,10 @@ it('generates a typescript sdk for fetch', function () {
     $sdk = $generator->generate();
 
     expect($sdk)
-        ->toContain("export const testStore = (data: ApiTestRequest) => {")
-        ->toContain("return fetch(`/api/test`")
+        ->toContain('export const testStore = (data: ApiTestRequest) => {')
+        ->toContain('return fetch(`/api/test`')
         ->toContain("method: 'post'")
-        ->toContain("body: JSON.stringify(data)");
+        ->toContain('body: JSON.stringify(data)');
 });
 
 it('generates a typescript sdk for inertia', function () {
@@ -43,11 +42,13 @@ it('generates a typescript sdk for inertia', function () {
 
     expect($sdk)
         ->toContain("import { router } from '@inertiajs/react';")
-        ->toContain("return router.post(`/api/test`, data);");
+        ->toContain('return router.post(`/api/test`, data);');
 });
 
 it('handles route parameters', function () {
-    Route::get('api/users/{user}', function () { return 'ok'; })->name('users.show');
+    Route::get('api/users/{user}', function () {
+        return 'ok';
+    })->name('users.show');
 
     $generator = app(SdkGenerator::class);
     $sdk = $generator->generate();
@@ -58,8 +59,12 @@ it('handles route parameters', function () {
 });
 
 it('filters routes by prefix', function () {
-    Route::get('api/include', function () { return 'ok'; })->name('include');
-    Route::get('other/exclude', function () { return 'ok'; })->name('exclude');
+    Route::get('api/include', function () {
+        return 'ok';
+    })->name('include');
+    Route::get('other/exclude', function () {
+        return 'ok';
+    })->name('exclude');
 
     $generator = app(SdkGenerator::class);
     $sdk = $generator->generate();
@@ -72,8 +77,12 @@ it('filters routes by prefix', function () {
 it('filters routes by middleware', function () {
     Config::set('wayfinder-forge.routes.exclude_middlewares', ['secret']);
 
-    Route::get('api/public', function () { return 'ok'; })->name('public');
-    Route::get('api/private', function () { return 'ok'; })->name('private')->middleware('secret');
+    Route::get('api/public', function () {
+        return 'ok';
+    })->name('public');
+    Route::get('api/private', function () {
+        return 'ok';
+    })->name('private')->middleware('secret');
 
     $generator = app(SdkGenerator::class);
     $sdk = $generator->generate();
