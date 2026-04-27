@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\URL;
 
 it('forgets selected default URL parameters', function () {
     URL::defaults([
-        'team'         => 'alpha',
+        'team' => 'alpha',
         'current_team' => 'alpha',
-        'locale'       => 'en',
+        'locale' => 'en',
     ]);
 
     $urlGenerator = URL::getFacadeRoot();
@@ -26,9 +26,9 @@ it('forgets selected default URL parameters', function () {
 
 it('registers the configured URL macro for clearing defaults', function () {
     URL::defaults([
-        'team'         => 'beta',
+        'team' => 'beta',
         'current_team' => 'beta',
-        'locale'       => 'pt',
+        'locale' => 'pt',
     ]);
 
     URL::forgetTeamRouteDefaultParameters();

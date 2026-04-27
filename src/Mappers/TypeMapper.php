@@ -101,10 +101,10 @@ class TypeMapper
 
         return match ($typeName) {
             'int', 'float' => 'number',
-            'bool'         => 'boolean',
-            'array'        => 'any[]',
-            'string'       => 'string',
-            default        => 'any',
+            'bool' => 'boolean',
+            'array' => 'any[]',
+            'string' => 'string',
+            default => 'any',
         };
     }
 }
