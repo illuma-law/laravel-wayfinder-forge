@@ -103,12 +103,12 @@ class SdkGenerator
             $params = array_values($route->parameterNames());
 
             return [
-                'name' => $this->getRouteName($route),
-                'method' => strtolower($method),
-                'uri' => $route->uri(),
-                'params' => $params,
+                'name'             => $this->getRouteName($route),
+                'method'           => strtolower($method),
+                'uri'              => $route->uri(),
+                'params'           => $params,
                 'requestInterface' => null,
-                'requestType' => 'any',
+                'requestType'      => 'any',
             ];
         }
 
@@ -148,12 +148,12 @@ class SdkGenerator
         $params = array_values($route->parameterNames());
 
         return [
-            'name' => $this->getRouteName($route),
-            'method' => strtolower($method),
-            'uri' => $route->uri(),
-            'params' => $params,
+            'name'             => $this->getRouteName($route),
+            'method'           => strtolower($method),
+            'uri'              => $route->uri(),
+            'params'           => $params,
             'requestInterface' => $requestInterface,
-            'requestType' => $requestType,
+            'requestType'      => $requestType,
         ];
     }
 

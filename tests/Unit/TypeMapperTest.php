@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 use IllumaLaw\WayfinderForge\Mappers\TypeMapper;
 use IllumaLaw\WayfinderForge\Tests\Mocks\MockData;
 
 it('can map basic validation rules to typescript interface', function () {
     $mapper = new TypeMapper;
     $rules = [
-        'name' => 'required|string',
-        'age' => 'nullable|integer',
+        'name'      => 'required|string',
+        'age'       => 'nullable|integer',
         'is_active' => 'boolean',
     ];
 

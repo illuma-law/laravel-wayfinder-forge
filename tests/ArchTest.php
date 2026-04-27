@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 arch('it should not use forbidden functions')
     ->expect(['dd', 'dump', 'ray', 'var_dump'])
     ->not->toBeUsed();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use IllumaLaw\WayfinderForge\Generators\SdkGenerator;
 use IllumaLaw\WayfinderForge\Tests\Mocks\MockController;
 use Illuminate\Support\Facades\Config;

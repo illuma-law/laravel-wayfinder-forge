@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace IllumaLaw\WayfinderForge\Tests\Mocks;
 
 use Illuminate\Routing\Controller;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use IllumaLaw\WayfinderForge\Routing\RoutePrefixCollector;
 
 it('collects unique sorted static route prefixes from uris', function () {
